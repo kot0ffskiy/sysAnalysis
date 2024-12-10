@@ -6,7 +6,13 @@ def entropy(probabilities):
     probabilities = probabilities[probabilities > 0]  # Исключаем нули
     return -np.sum(probabilities * np.log2(probabilities))
 
-def main(csv_data: str) -> list:
+def main() -> list:
+    csv_data = """Возрастная группа,Электроника,Одежда,Книги,Обувь
+                18-24,20,15,10,5
+                25-34,30,20,15,10
+                35-44,25,25,20,15
+                45-54,20,20,25,20
+                55+,15,15,30,25"""
     data = pd.read_csv(StringIO(csv_data), index_col=0)
 
     prob = data / data.values.sum()
@@ -27,12 +33,6 @@ def main(csv_data: str) -> list:
 
     return [round(H_AB, 2), round(H_A, 2), round(H_B, 2), round(Ha_B, 2), round(I_AB, 2)]
 
-csv_data = """Возрастная группа,Электроника,Одежда,Книги,Обувь
-18-24,20,15,10,5
-25-34,30,20,15,10
-35-44,25,25,20,15
-45-54,20,20,25,20
-55+,15,15,30,25"""
 
-result = main(csv_data)
+result = main()
 print(result)

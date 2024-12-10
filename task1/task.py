@@ -9,8 +9,7 @@ def get_cell_value(file_path, row_number, column_number):
             return rows[row_number][column_number]
         else:
             raise IndexError("Индекс строки или колонки выходит за пределы таблицы.")
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Получение значения ячейки из CSV-файла.")
     parser.add_argument("file_path", type=str, help="Полный путь к csv-файлу.")
     parser.add_argument("row_number", type=int, help="Номер строки (начиная с 0).")
@@ -18,3 +17,6 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     print(get_cell_value(args.file_path, args.row_number, args.column_number))
+
+if __name__ == "__main__":
+    main()
