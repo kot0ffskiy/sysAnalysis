@@ -1,65 +1,43 @@
 import math
-import sys
-from itertools import chain
 
-def parse_file(file_path):
-    with open(file_path, 'r') as f:
-        edges = [tuple(map(int, line.split(','))) for line in f.read().strip().splitlines()]
-    nodes = set(chain.from_iterable(edges))
-    graph = {parent: [] for parent, _ in edges}
-    for parent, child in edges:
-        graph[parent].append(child)
-    return graph, max(nodes)
-
-def compute_relationships(graph, node_count):
-    relations = [[0]*5 for _ in range(node_count)]
-    for node, children in graph.items():
-        relations[node-1][0] = len(children)
-        for child in children:
-            relations[child-1][1] += 1
-            relations[node-1][2] += relations[child-1][0]
-            if child in graph:
-                for grandchild in graph[child]:
-                    relations[grandchild-1][3] += 1
-    
-    root = (set(graph.keys()) - set(chain.from_iterable(graph.values()))).pop()
-    levels = {}
-    queue = [(root, 0)]
-    while queue:
-        node, level = queue.pop(0)
-        levels.setdefault(level, []).append(node)
-        queue.extend((child, level + 1) for child in graph.get(node, []))
-    
-    for level_nodes in levels.values():
-        for node in level_nodes:
-            relations[node-1][4] = len(level_nodes) - 1
-    return relations
-
-def main(file_path):
-    graph, node_count = parse_file(file_path)
-    relation_matrix = compute_relationships(graph, node_count)
-    return '\n'.join(','.join(map(str, row)) for row in relation_matrix)
-
-def task(csv_string: str) -> float:
-    matrix = [
-        list(map(int, row.split(','))) for row in csv_string.strip().splitlines()
-    ]
-    
+def task(csv_string):
+    matrix = [list(map(int, row.split(','))) for row in csv_string.strip().split('\n')]
     n = len(matrix)
+    k = len(matrix[0]) if n > 0 else 0
+
+    if n == 0 or k == 0:
+        return 0.0
+
     entropy = 0.0
+    for i in range(n):
+        for j in range(k):
+            lij = matrix[i][j]
+            if lij > 0: 
+                norm = lij / (n - 1)
+                entropy += norm * math.log2(norm)
 
-    for row in matrix:
-        for length in row:
-            if length > 0:
-                p = length / (n - 1)
-                entropy -= p * math.log2(p)
+    entropy = -entropy
 
-    return round(entropy, 2)
+    return round(entropy, 1)
+
+def main(input_data):
+    if '\n' in input_data or ',' in input_data:
+        # Если входные данные содержат недопустимые для имени файла 
+        # символы, считаем их строкой
+        csv_string = input_data
+    else:
+        try:
+            # Иначе предполагаем, что это путь к файлу
+            with open(input_data, 'r') as file:
+                csv_string = file.read()
+        except FileNotFoundError:
+            print("Error: File not found or invalid input provided.")
+            return
+    
+    # Вызываем функцию task и выводим результат
+    result = task(csv_string)
+    print(f"Calculated entropy: {result}")
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        matrix = main(sys.argv[1])
-        print(matrix)
-        print(f'Энтропия равна {task(matrix)}')
-    else:
-        print("Необходимо указать путь к файлу.")
+    # Передача строки CSV или имени файла
+    main('2,0,2,0,0\n0,1,0,0,1\n2,1,0,0,1\n0,1,0,1,1\n0,1,0,1,1\n')
